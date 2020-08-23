@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using SportsStore.Models;
 
 namespace SportsStore
 {
@@ -15,19 +16,24 @@ namespace SportsStore
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<IProductRepository, FakeProductRepository>(); //resgistering service of IProduct repository
+            services.AddMvc(); //sets up shared objects used in Mvc applications
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called by the runtime. Use this method to set up features that receive and process
+        //Http requests 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseDeveloperExceptionPage(); //only available in development process, not available in deployed applications
+            app.UseStatusCodePages(); //add simple messages to Http responses 
+            app.UseStaticFiles();    //method enables support for serving static content from the wwwroot folder.
+            app.UseMvc(routes =>
             {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.Run(async (context) =>
-            {
-                await context.Response.WriteAsync("Hello World!");
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Product}/{action=List}/{id?}");
+            //I need to tell MVC that it should send requests that arrive for the root URL of my application (http://
+            //mysite /) to the List action method in the ProductController class
             });
         }
     }
