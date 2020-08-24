@@ -49,6 +49,8 @@ namespace SportsStore
             //I need to tell MVC that it should send requests that arrive for the root URL of my application (http://
             //mysite /) to the List action method in the ProductController class
             });
+
+            SeedData.EnsurePopulated(app); //seed the database when the application starts
         }
     }
 }
