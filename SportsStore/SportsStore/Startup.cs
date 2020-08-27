@@ -43,6 +43,12 @@ namespace SportsStore
             app.UseStaticFiles();    //method enables support for serving static content from the wwwroot folder.
             app.UseMvc(routes =>
             {
+                //add new route before default
+                routes.MapRoute(
+                    name: "pagination",
+                    template: "Products/Page{productPage}",
+                    defaults: new { Controller = "Product", action = "List" });
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Product}/{action=List}/{id?}");
