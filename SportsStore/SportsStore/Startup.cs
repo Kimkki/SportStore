@@ -32,6 +32,8 @@ namespace SportsStore
 
             //services.AddTransient<IProductRepository, FakeProductRepository>(); //resgistering service of IProduct repository
             services.AddMvc(); //sets up shared objects used in Mvc applications
+            services.AddMemoryCache();
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to set up features that receive and process
@@ -41,19 +43,59 @@ namespace SportsStore
             app.UseDeveloperExceptionPage(); //only available in development process, not available in deployed applications
             app.UseStatusCodePages(); //add simple messages to Http responses 
             app.UseStaticFiles();    //method enables support for serving static content from the wwwroot folder.
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 //add new route before default
-                routes.MapRoute(
-                    name: "pagination",
-                    template: "Products/Page{productPage}",
-                    defaults: new { Controller = "Product", action = "List" });
+                //routes.MapRoute(
+                //    name: "pagination",
+                //    template: "Products/Page{productPage}",
+                //    defaults: new { Controller = "Product", action = "List" });
+
+                //routes.MapRoute(
+                //    name: "default",
+                //    template: "{controller=Product}/{action=List}/{id?}");
+                //I need to tell MVC that it should send requests that arrive for the root URL of my application (http://
+                //mysite /) to the List action method in the ProductController class
 
                 routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Product}/{action=List}/{id?}");
-            //I need to tell MVC that it should send requests that arrive for the root URL of my application (http://
-            //mysite /) to the List action method in the ProductController class
+                    name: null,
+                    template: "{category}/Page{productPage:int}",
+                    defaults: new { controller = "Product", action = "List" }
+                    );
+
+
+                routes.MapRoute(
+                    name: null,
+                    template: "Page{productPage:int}",
+                    defaults: new
+                    {
+                        controller = "Product",
+                        action = "List",
+                        productPage = 1
+                    }
+                    );
+                routes.MapRoute(
+                name: null,
+                template: "{category}",
+                defaults: new
+                {
+                    controller = "Product",
+                    action = "List",
+                    productPage = 1
+                }
+                );
+                routes.MapRoute(
+                name: null,
+                template: "",
+                defaults: new
+                {
+                    controller = "Product",
+                    action = "List",
+                    productPage = 1
+                });
+                routes.MapRoute(name: null, template: "{controller}/{action}/{id?}");
+
             });
 
             SeedData.EnsurePopulated(app); //seed the database when the application starts
